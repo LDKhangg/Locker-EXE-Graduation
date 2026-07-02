@@ -1,8 +1,20 @@
-[submodule "laundry-locker-ai"]
-	path = laundry-locker-ai
+[submodule "ai/laundry-locker-ai"]
+	path = ai/laundry-locker-ai
 	url = https://github.com/LDKhangg/laundry-locker-ai.git
 	branch = master
-[submodule "laundry-locker-frontend-admin"]
-	path = laundry-locker-frontend-admin
+[submodule "frontend/laundry-locker-frontend-admin"]
+	path = frontend/laundry-locker-frontend-admin
 	url = https://github.com/LDKhangg/laundry-locker-frontend-admin.git
 	branch = main
+[submodule "frontend/laundry-locker-frontend"]
+	path = frontend/laundry-locker-frontend
+	url = https://github.com/LeThiYenVi/laundry-locker-frontend.git
+	branch = main
+[submodule "backend/laundry-locker-microservices"]
+	path = backend/laundry-locker-microservices
+	url = https://github.com/BaoHuy-Dev/laundry-locker-microservices.git
+	branch = develop
+[submodule "mobile/smart-laundry-locker-mobile"]
+	path = mobile/smart-laundry-locker-mobile
+	url = https://github.com/BaoHuy-Dev/smart-laundry-locker-mobile.git
+	branch = develop
