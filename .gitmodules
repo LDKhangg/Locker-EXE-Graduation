@@ -1,0 +1,8 @@
+[submodule "laundry-locker-ai"]
+	path = laundry-locker-ai
+	url = https://github.com/LDKhangg/laundry-locker-ai.git
+	branch = master
+[submodule "laundry-locker-frontend-admin"]
+	path = laundry-locker-frontend-admin
+	url = https://github.com/LDKhangg/laundry-locker-frontend-admin.git
+	branch = main

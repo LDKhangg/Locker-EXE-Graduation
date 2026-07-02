@@ -1,0 +1,35 @@
+name: Update Submodules
+
+on:
+  schedule:
+    - cron: '0 3 * * *' # daily 03:00 UTC
+  workflow_dispatch: {}
+
+jobs:
+  update-submodules:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          # Falls back to the default GITHUB_TOKEN (works for the public
+          # laundry-locker-ai submodule). Add a repo secret named
+          # SUBMODULE_PAT (personal access token, repo scope) to also
+          # auto-update the private laundry-locker-frontend-admin submodule.
+          token: ${{ secrets.SUBMODULE_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Pull latest submodule commits
+        run: git submodule update --remote --merge
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: auto-update submodules"
+            git push
+          else
+            echo "No submodule changes."
+          fi
