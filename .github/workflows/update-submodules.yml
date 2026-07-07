@@ -11,24 +11,37 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          submodules: true
-          # Falls back to the default GITHUB_TOKEN (works for the public
-          # laundry-locker-ai submodule). Add a repo secret named
-          # SUBMODULE_PAT (personal access token, repo scope) to also
-          # auto-update the private laundry-locker-frontend-admin submodule.
-          token: ${{ secrets.SUBMODULE_PAT || secrets.GITHUB_TOKEN }}
+        # No submodules here on purpose: laundry-locker-frontend-admin is
+        # private and the default GITHUB_TOKEN cannot clone it. Pointers are
+        # bumped via ls-remote below, so no submodule checkout is needed.
 
-      - name: Pull latest submodule commits
-        run: git submodule update --remote --merge
+      - name: Bump submodule pointers to latest tracked branch
+        env:
+          GIT_TERMINAL_PROMPT: "0" # never hang waiting for credentials
+        run: |
+          set -eu
+          # Private submodules the default token cannot read — left untouched.
+          SKIP="frontend/laundry-locker-frontend-admin"
+          git config -f .gitmodules --get-regexp '^submodule\..*\.path$' | while read -r key path; do
+            name="${key#submodule.}"; name="${name%.path}"
+            case " $SKIP " in *" $path "*) echo "skip $path (private)"; continue;; esac
+            url=$(git config -f .gitmodules --get "submodule.$name.url")
+            branch=$(git config -f .gitmodules --get "submodule.$name.branch" || echo main)
+            sha=$(git ls-remote "$url" "refs/heads/$branch" | cut -f1)
+            if [ -z "$sha" ]; then
+              echo "WARN: branch $branch not found on $url — skipping $path"
+              continue
+            fi
+            git update-index --cacheinfo "160000,$sha,$path"
+            echo "$path -> $branch @ $sha"
+          done
 
       - name: Commit and push if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add .
           if ! git diff --cached --quiet; then
-            git commit -m "chore: auto-update submodules"
+            git commit -m "chore: auto-update submodules to latest tracked branches"
             git push
           else
             echo "No submodule changes."
